@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Log
 public class GitHubReader {
-    private OkHttpClient client;
+    private final OkHttpClient client;
 
     public GitHubReader() {
         this.client = new OkHttpClient();

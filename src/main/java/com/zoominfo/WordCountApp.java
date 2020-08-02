@@ -16,13 +16,23 @@ import java.util.List;
 public class WordCountApp {
 
     private static final String TOKENIZER_PATTERN = "[^\\p{L}]+";
+
+
+    public static void main(String[] args) throws IOException {
+        PipelineOptionsFactory.register(WordCountReposOptions.class);
+        WordCountReposOptions options =
+                PipelineOptionsFactory.fromArgs(args).as(WordCountReposOptions.class);
+        new GithubExtractor().extract(parseReposList(options.getRepos()));
+        runWordCount(options, GithubExtractor.DirectoryName + "/*");
+
+    }
+
     /**
      * Concept #2: You can make your pipeline assembly code less verbose by defining your DoFns
      * statically out-of-line. This DoFn tokenizes lines of text into individual words; we pass it to
      * a ParDo in the pipeline.
      */
     static class ExtractWordsFn extends DoFn<String, String> {
-
 
         @ProcessElement
         public void processElement(@Element String element, OutputReceiver<String> receiver) {
@@ -38,7 +48,9 @@ public class WordCountApp {
         }
     }
 
-    /** A SimpleFunction that converts a Word and Count into a printable string. */
+    /**
+     * A SimpleFunction that converts a Word and Count into a printable string.
+     */
     public static class FormatAsTextFn extends SimpleFunction<KV<String, Long>, String> {
         @Override
         public String apply(KV<String, Long> input) {
@@ -61,9 +73,7 @@ public class WordCountApp {
 
             // Convert lines of text into individual words.
             PCollection<String> words = lines.apply(ParDo.of(new ExtractWordsFn()));
-
             // Count the number of times each word occurs.
-
             return words.apply(Count.perElement());
         }
     }
@@ -82,9 +92,12 @@ public class WordCountApp {
         @Description("List of repositories in github separated by ','")
         @Default.String("Zoominfo/api-auth-python-client")
         String getRepos();
+
         void setRepos(String input);
 
-        /** Set this required option to specify where to write the output. */
+        /**
+         * Set this required option to specify where to write the output.
+         */
         @Description("Path of the file to write to")
         @Validation.Required
         String getOutput();
@@ -106,19 +119,7 @@ public class WordCountApp {
     }
 
 
-    public static void main(String[] args) throws IOException {
-        //List<String> repos= Arrays.asList("aviadshiber/BionicEyeXamarin", "aviadshiber/BionicEyeArduino");
-        PipelineOptionsFactory.register(WordCountReposOptions.class);
-        WordCountReposOptions options =
-                PipelineOptionsFactory.fromArgs(args).as(WordCountReposOptions.class);
-        GithubExtractor githubExtractor= new GithubExtractor();
-        List<String> repos= getReposList(options.getRepos());
-        githubExtractor.extract(repos);
-        runWordCount(options,GithubExtractor.DirectoryName+"/*");
-
-    }
-
-    private static List<String> getReposList(String repos) {
+    private static List<String> parseReposList(String repos) {
         return Arrays.asList(repos.split(","));
     }
 
