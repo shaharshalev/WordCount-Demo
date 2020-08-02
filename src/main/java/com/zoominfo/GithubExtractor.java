@@ -26,7 +26,7 @@ public class GithubExtractor {
         log.info("Extracting the following repos {} to directory {}",repos,DirectoryName);
         final String dirPath= FilesUtils.createDir(DirectoryName);
         repos.parallelStream()
-                .map(repo -> getReadmeFileContent(new GitHubReader(), repo))
+                .map(this::getReadmeFileContent)
                 .forEach(content -> writeToGithubFolder(content,dirPath));
     }
 
@@ -41,9 +41,9 @@ public class GithubExtractor {
         }
     }
 
-    private String getReadmeFileContent(@NonNull  GitHubReader gitHubReader,@NonNull String repo) {
+    private String getReadmeFileContent(@NonNull String repo) {
         try {
-            return gitHubReader.getContent(repo, "README.md");
+            return new GitHubReader().getContent(repo, "README.md");
         }catch (IOException ex){
             log.error(ex.toString());
         }
