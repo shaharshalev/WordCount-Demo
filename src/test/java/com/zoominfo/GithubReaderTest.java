@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class GithubReaderTest {
 
     @Test
-    public void testingExtract() throws IOException {
+    public void readContentFromGithubTest() throws IOException {
 
         String actual=new GitHubReader().getContent("githubtraining/hellogitworld","README.txt");
         String expected="This is a sample project students can use during Matthew's Git class.\n" +
