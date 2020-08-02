@@ -19,10 +19,8 @@ public class GithubExtractor {
 
     public void extract(@NonNull List<String> repos) throws IOException {
         final String dirPath= FilesUtils.createDir(DirectoryName);
-
-        GitHubReader gitHubReader= new GitHubReader();
-        repos.stream()
-                .map(repo -> getReadmeFileContent(gitHubReader, repo))
+        repos.parallelStream()
+                .map(repo -> getReadmeFileContent(new GitHubReader(), repo))
                 .forEach(content -> writeToGithubFolder(content,dirPath));
     }
 
