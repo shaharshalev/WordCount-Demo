@@ -2,13 +2,18 @@ package com.zoominfo;
 
 import lombok.NonNull;
 import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Log
+/**
+ * GithubExtractor is a thread safe module that extract in parallel all readme files content
+ * from github repositories and write it to a const Directory named {DirectoryName}
+ */
+@Slf4j
 public class GithubExtractor {
 
     private final AtomicInteger counter;
@@ -18,6 +23,7 @@ public class GithubExtractor {
     }
 
     public void extract(@NonNull List<String> repos) throws IOException {
+        log.info("Extracting the following repos {} to directory {}",repos,DirectoryName);
         final String dirPath= FilesUtils.createDir(DirectoryName);
         repos.parallelStream()
                 .map(repo -> getReadmeFileContent(new GitHubReader(), repo))
@@ -26,12 +32,12 @@ public class GithubExtractor {
 
     private void writeToGithubFolder(@NonNull String content,@NonNull String dirPath) {
         try {
-            final String fileName= "readme" + counter.intValue();
+            final String fileName= "readme" + counter.get();
             log.info("saving content with the name: "+fileName);
             FilesUtils.stringToFile(fileName, content, dirPath);
             counter.incrementAndGet();
         }catch (IOException e){
-            log.severe(e.toString());
+            log.error(e.toString());
         }
     }
 
@@ -39,7 +45,7 @@ public class GithubExtractor {
         try {
             return gitHubReader.getContent(repo, "README.md");
         }catch (IOException ex){
-            log.severe(ex.toString());
+            log.error(ex.toString());
         }
         return null;
     }
