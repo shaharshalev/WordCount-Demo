@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.beam.examples;
+package com.zoominfo;
 
 import java.util.Arrays;
 import java.util.List;
 
+import com.zoominfo.WordCountApp;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.testing.PAssert;
 import org.apache.beam.sdk.testing.TestPipeline;
@@ -45,7 +46,7 @@ public class WordCountTest {
     List<String> words = Arrays.asList(" some  input  words ", " ", " cool ", " foo", " bar");
     PCollection<String> output =
         p.apply(Create.of(words).withCoder(StringUtf8Coder.of()))
-            .apply(ParDo.of(new ExtractWordsFn()));
+            .apply(ParDo.of(new WordCountApp.ExtractWordsFn()));
     PAssert.that(output).containsInAnyOrder("some", "input", "words", "cool", "foo", "bar");
     p.run().waitUntilFinish();
   }
@@ -69,7 +70,7 @@ public class WordCountTest {
     PCollection<String> input = p.apply(Create.of(WORDS).withCoder(StringUtf8Coder.of()));
 
     PCollection<String> output =
-        input.apply(new CountWords()).apply(MapElements.via(new FormatAsTextFn()));
+        input.apply(new WordCountApp.CountWords()).apply(MapElements.via(new WordCountApp.FormatAsTextFn()));
 
     PAssert.that(output).containsInAnyOrder(COUNTS_ARRAY);
     p.run().waitUntilFinish();
