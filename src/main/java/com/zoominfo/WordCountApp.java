@@ -18,7 +18,7 @@ public class WordCountApp {
     private static final String TOKENIZER_PATTERN = "[^\\p{L}]+";
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         PipelineOptionsFactory.register(WordCountReposOptions.class);
         WordCountReposOptions options =
                 PipelineOptionsFactory.fromArgs(args).as(WordCountReposOptions.class);

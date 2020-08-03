@@ -18,19 +18,25 @@ public class GithubExtractor {
 
     private final AtomicInteger counter;
     static final String DirectoryName="github";
+    private String dirPath;
     public GithubExtractor(){
         counter=new AtomicInteger(0);
+        try {
+            dirPath=FilesUtils.createDir(DirectoryName);
+        } catch (IOException e) {
+            log.error(e.toString());
+        }
     }
 
-    public void extract(@NonNull List<String> repos) throws IOException {
+    public void extract(@NonNull List<String> repos) {
+
         log.info("Extracting the following repos {} to directory {}",repos,DirectoryName);
-        final String dirPath= FilesUtils.createDir(DirectoryName);
         repos.parallelStream()
-                .map(this::getReadmeFileContent)
-                .forEach(content -> writeToGithubFolder(content,dirPath));
+                .map(repo->getReadmeFileContent(repo))
+                .forEach(content -> writeToGithubFolder(content));
     }
 
-    private void writeToGithubFolder(@NonNull String content,@NonNull String dirPath) {
+    private void writeToGithubFolder(@NonNull String content) {
         try {
             final String fileName= "readme" + counter.get();
             log.info("saving content with the name: "+fileName);
